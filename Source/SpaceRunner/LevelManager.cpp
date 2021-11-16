@@ -9,7 +9,8 @@ ALevelManager::ALevelManager() :
 NumberOfLanes(3),
 LaneWidth(250.f),
 LevelSpeed(-500.f),
-OutOfBoundBoxScale(32, 32, 32)
+OutOfBoundBoxScale(32, 32, 32),
+bIsPlaying(false)
 
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -34,6 +35,11 @@ void ALevelManager::BeginPlay()
 void ALevelManager::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+}
+
+void ALevelManager::GameOver_Implementation()
+{
 
 }
 

@@ -72,7 +72,7 @@ void ASpaceRunnerCharacter::BeginPlay()
 
 void ASpaceRunnerCharacter::Initialize()
 {
-	ALevelManager* LevelManager = Cast<ALevelManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ALevelManager::StaticClass()));
+	LevelManager = Cast<ALevelManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ALevelManager::StaticClass()));
 	if (LevelManager)
 	{
 		NumberOfLanes = LevelManager->GetNumberOfLanes();
@@ -84,7 +84,7 @@ void ASpaceRunnerCharacter::Initialize()
 
 void ASpaceRunnerCharacter::MoveLeft_Implementation()
 {
-
+	
 }
 
 void ASpaceRunnerCharacter::MoveRight_Implementation()

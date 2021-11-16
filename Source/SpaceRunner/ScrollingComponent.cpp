@@ -11,8 +11,7 @@ UScrollingComponent::UScrollingComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	
 }
 
 
@@ -21,7 +20,6 @@ void UScrollingComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
 	
 }
 
@@ -29,10 +27,10 @@ void UScrollingComponent::BeginPlay()
 void UScrollingComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	ALevelManager* LevelManager = Cast<ALevelManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ALevelManager::StaticClass()));
-
-	if (LevelManager)
+	
+	LevelManager = Cast<ALevelManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ALevelManager::StaticClass()));
+	
+	if (LevelManager && LevelManager->GetIsPlaying())
 	{
 		Movement = GetOwner()->GetActorForwardVector() * LevelManager->GetLevelSpeed() * DeltaTime;
 		GetOwner()->AddActorLocalOffset(Movement);

@@ -19,6 +19,9 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void GameOver();
+
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -43,9 +46,13 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true", MakeEditWidget = true))
 		class UBoxComponent* LevelBounds;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
+		bool bIsPlaying;
+
 public:
 
 	FORCEINLINE int32 GetNumberOfLanes() const { return NumberOfLanes; }
 	FORCEINLINE float GetLaneWidth() const { return LaneWidth; }
 	FORCEINLINE float GetLevelSpeed() const { return LevelSpeed; }
+	FORCEINLINE bool GetIsPlaying() const { return bIsPlaying; }
 };
