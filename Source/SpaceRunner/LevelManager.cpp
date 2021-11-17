@@ -10,7 +10,8 @@ NumberOfLanes(3),
 LaneWidth(250.f),
 LevelSpeed(-500.f),
 OutOfBoundBoxScale(32, 32, 32),
-bIsPlaying(false)
+bIsPlaying(false),
+Score(0)
 
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.

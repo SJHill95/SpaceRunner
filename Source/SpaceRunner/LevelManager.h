@@ -29,25 +29,28 @@ public:
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Lanes, meta = (AllowPrivateAccess = "true"))
-		int32 NumberOfLanes;
+	int32 NumberOfLanes;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Lanes, meta = (AllowPrivateAccess = "true"))
-		float LaneWidth;
+	float LaneWidth;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
-		float LevelSpeed;
+	float LevelSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true"))
-		FVector OutOfBoundBoxScale;
+	FVector OutOfBoundBoxScale;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true", MakeEditWidget = true))
-		FVector OutOfBoundBoxLocation;
+	FVector OutOfBoundBoxLocation;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true", MakeEditWidget = true))
-		class UBoxComponent* LevelBounds;
+	class UBoxComponent* LevelBounds;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
-		bool bIsPlaying;
+	bool bIsPlaying;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Score, meta = (AllowPrivateAccess = "true"))
+	int32 Score;
 
 public:
 

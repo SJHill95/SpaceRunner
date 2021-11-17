@@ -3,6 +3,8 @@
 
 #include "FloorBase.h"
 #include "ScrollingComponent.h"
+#include "LevelManager.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AFloorBase::AFloorBase()
@@ -11,6 +13,8 @@ AFloorBase::AFloorBase()
 	PrimaryActorTick.bCanEverTick = true;
 	ScrollingComponent = CreateDefaultSubobject<UScrollingComponent>(TEXT("ScrollingComponent"));
 	AddOwnedComponent(ScrollingComponent);
+
+	LevelManager = Cast<ALevelManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ALevelManager::StaticClass()));
 
 }
 
