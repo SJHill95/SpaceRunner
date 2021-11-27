@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "SpaceRunnerCharacter.generated.h"
 
+
 UCLASS(config=Game)
 class ASpaceRunnerCharacter : public ACharacter
 {
@@ -41,6 +42,7 @@ public:
 
 	void RestartLevel();
 
+	
 	UFUNCTION()
 		void OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
 			AActor* OtherActor,
