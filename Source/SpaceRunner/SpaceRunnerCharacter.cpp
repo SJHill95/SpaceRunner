@@ -16,7 +16,8 @@ ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
 	JumpVelocity(600.f),
 	GravityScale(1.f),
 	// Movement
-	CharacterSpeed(600.f)
+	CharacterSpeed(600.f),
+	bIsFlying(false)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -113,8 +114,6 @@ void ASpaceRunnerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASpaceRunnerCharacter::MoveLeft);
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASpaceRunnerCharacter::MoveRight);
 	PlayerInputComponent->BindAxis("MoveRight", this, &ASpaceRunnerCharacter::MoveRight);
-
-
 }
 
 void ASpaceRunnerCharacter::MoveRight(float value)
@@ -128,7 +127,11 @@ void ASpaceRunnerCharacter::MoveRight(float value)
 
 void ASpaceRunnerCharacter::Jump()
 {
-	ACharacter::Jump();
+	if (!bIsFlying)
+	{
+		ACharacter::Jump();
+	}
+	
 }
 
 void ASpaceRunnerCharacter::RestartLevel()

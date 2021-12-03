@@ -70,6 +70,9 @@ private:
 
 	float CharacterSpeed;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
+	bool bIsFlying;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true", MakeEditWidget = true))
 		int32 NumberOfLanes;
 
