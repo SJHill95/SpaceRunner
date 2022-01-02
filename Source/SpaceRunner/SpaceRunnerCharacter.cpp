@@ -113,7 +113,7 @@ void ASpaceRunnerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASpaceRunnerCharacter::MoveLeft);
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASpaceRunnerCharacter::MoveRight);
-	PlayerInputComponent->BindAxis("MoveRight", this, &ASpaceRunnerCharacter::MoveRight);
+	//PlayerInputComponent->BindAxis("MoveRight", this, &ASpaceRunnerCharacter::MoveRight);
 }
 
 void ASpaceRunnerCharacter::MoveRight(float value)
