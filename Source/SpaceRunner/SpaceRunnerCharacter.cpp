@@ -127,7 +127,8 @@ void ASpaceRunnerCharacter::MoveRight(float value)
 
 void ASpaceRunnerCharacter::Jump()
 {
-	if (!bIsFlying)
+	
+	if (!bIsFlying && LevelManager->GetIsPlaying())
 	{
 		ACharacter::Jump();
 	}
