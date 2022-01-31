@@ -6,6 +6,13 @@
 #include "GameFramework/Character.h"
 #include "SpaceRunnerCharacter.generated.h"
 
+UENUM(BlueprintType)
+enum class ECharacterType : uint8
+{
+	ECT_Runner UMETA(DisplayName="Runner"),
+	ECT_Freeroam UMETA(DisplayName = "Freeroam")
+};
+
 
 UCLASS(config=Game)
 class ASpaceRunnerCharacter : public ACharacter
@@ -14,6 +21,12 @@ class ASpaceRunnerCharacter : public ACharacter
 
 public:
 	ASpaceRunnerCharacter();
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	ECharacterType CharacterType;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool bIsRunnerCharacter;
 
 protected:
 	// Called when the game starts or when spawned

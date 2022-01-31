@@ -17,7 +17,8 @@ ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
 	GravityScale(1.f),
 	// Movement
 	CharacterSpeed(600.f),
-	bIsFlying(false)
+	bIsFlying(false),
+	bIsRunnerCharacter(true)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -68,6 +69,15 @@ void ASpaceRunnerCharacter::BeginPlay()
 	CanMove = true;
 
 	Initialize();
+
+	if (bIsRunnerCharacter)
+	{
+		CharacterType = ECharacterType::ECT_Runner;
+	}
+	else
+	{
+		CharacterType = ECharacterType::ECT_Freeroam;
+	}
 
 }
 
@@ -127,10 +137,17 @@ void ASpaceRunnerCharacter::MoveRight(float value)
 
 void ASpaceRunnerCharacter::Jump()
 {
-	
-	if (!bIsFlying && LevelManager->GetIsPlaying())
+	if (CharacterType == ECharacterType::ECT_Freeroam)
 	{
 		ACharacter::Jump();
+	}
+
+	else if (CharacterType == ECharacterType::ECT_Runner)
+	{
+		if (!bIsFlying && LevelManager->GetIsPlaying())
+		{
+			ACharacter::Jump();
+		}
 	}
 	
 }
