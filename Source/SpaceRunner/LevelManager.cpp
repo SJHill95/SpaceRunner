@@ -38,7 +38,16 @@ void ALevelManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
+/*
+void ALevelManager::StartGame()
+{
+	if (bMaterializeFinished)
+	{
+		bIsPlaying = true;
+	}
 
+}
+*/
 void ALevelManager::GameOver_Implementation()
 {
 

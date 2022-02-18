@@ -9,6 +9,12 @@
 #include "LevelManager.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+#include "Components/WidgetComponent.h"
+#include "Components/SphereComponent.h"
+#include "Components/StaticMeshComponent.h"
+#include "Components/SkeletalMeshComponent.h"
+#include "Coin.h"
+#include "NiagaraComponent.h"
 
 // Sets default values
 ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
@@ -17,8 +23,14 @@ ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
 	GravityScale(1.f),
 	// Movement
 	CharacterSpeed(600.f),
+	bIsRunnerCharacter(true),
+	// Coins
+	Coins(0.f),
+	CoinsTotal(0.f),
+	// Flying
+	FlyingHeightZ(400.f),
 	bIsFlying(false),
-	bIsRunnerCharacter(true)
+	FlyingSpeed(-2000.f)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -58,6 +70,19 @@ ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
 	tempPos = GetActorLocation();
 	zPosition = tempPos.Z + 300.f;
 
+	// Magnet Collision
+	MagnetSphereCollision = CreateDefaultSubobject<USphereComponent>(TEXT("MagnetSphereCollision"));
+	MagnetSphereCollision->SetupAttachment(RootComponent);
+
+	// Jetpack/Flying Particles and mesh
+	JetpackMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("JetpackMesh"));
+	JetpackMesh->SetupAttachment(GetMesh(), GetMesh()->GetSocketBoneName(TEXT("spine_03")));
+
+	JetpackParticles = CreateDefaultSubobject<UNiagaraComponent>(TEXT("JetpackParticles"));
+	JetpackParticles->SetupAttachment(JetpackMesh);
+
+	SpeedLines = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SpeedLines"));
+	SpeedLines->SetupAttachment(RootComponent);
 
 }
 
@@ -67,6 +92,8 @@ void ASpaceRunnerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	CanMove = true;
+
+	LevelManager = Cast<ALevelManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ALevelManager::StaticClass()));
 
 	Initialize();
 
@@ -79,11 +106,12 @@ void ASpaceRunnerCharacter::BeginPlay()
 		CharacterType = ECharacterType::ECT_Freeroam;
 	}
 
+	MagnetSphereCollision->OnComponentBeginOverlap.AddDynamic(this, &ASpaceRunnerCharacter::OnOverlapBegin);
+
 }
 
 void ASpaceRunnerCharacter::Initialize()
 {
-	LevelManager = Cast<ALevelManager>(UGameplayStatics::GetActorOfClass(GetWorld(), ALevelManager::StaticClass()));
 	if (LevelManager)
 	{
 		NumberOfLanes = LevelManager->GetNumberOfLanes();
@@ -123,6 +151,9 @@ void ASpaceRunnerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInp
 	PlayerInputComponent->BindAction("Jump", IE_Released, this, &ACharacter::StopJumping);
 	PlayerInputComponent->BindAction("Left", IE_Pressed, this, &ASpaceRunnerCharacter::MoveLeft);
 	PlayerInputComponent->BindAction("Right", IE_Pressed, this, &ASpaceRunnerCharacter::MoveRight);
+	PlayerInputComponent->BindAction("Down", IE_Pressed, this, &ASpaceRunnerCharacter::MoveDown);
+	PlayerInputComponent->BindAction("Down", IE_Released, this, &ASpaceRunnerCharacter::StopSliding);
+	PlayerInputComponent->BindAction("Any Key", IE_Pressed, this, &ASpaceRunnerCharacter::StartGame);
 	//PlayerInputComponent->BindAxis("MoveRight", this, &ASpaceRunnerCharacter::MoveRight);
 }
 
@@ -152,6 +183,54 @@ void ASpaceRunnerCharacter::Jump()
 	
 }
 
+void ASpaceRunnerCharacter::StartFlying()
+{
+	CharacterState = ECharacterState::ECS_Flying;
+
+	SetActorLocation({ GetActorLocation().X,GetActorLocation().Y, FlyingHeightZ });
+	GetCharacterMovement()->GravityScale = 0.f;
+	LevelManager->SetLevelSpeed(FlyingSpeed);
+}
+
+void ASpaceRunnerCharacter::StopFlying()
+{
+	CharacterState = ECharacterState::ECS_Falling;
+}
+
+void ASpaceRunnerCharacter::MoveDown()
+{
+	UE_LOG(LogTemp, Warning, TEXT("Move down pressed"));
+	if (CharacterState != ECharacterState::ECS_Flying)
+	{
+		if (!LevelManager->GetIsPlaying() || GetCharacterMovement()->IsFalling())
+		{
+			UE_LOG(LogTemp, Warning, TEXT("Add impulse?"));
+			GetCharacterMovement()->AddImpulse({ 0.f,0.f,-3000.f }, true);
+		}
+
+		else
+		{
+			Slide();
+		}
+		
+	}
+}
+
+void ASpaceRunnerCharacter::Slide()
+{
+	CharacterState = ECharacterState::ECS_Sliding;
+	Crouch();
+}
+
+void ASpaceRunnerCharacter::StopSliding()
+{
+	if (CharacterState == ECharacterState::ECS_Sliding)
+	{
+		CharacterState = ECharacterState::ECS_Running;
+		UnCrouch();
+	}	
+}
+
 void ASpaceRunnerCharacter::RestartLevel()
 {
 
@@ -159,6 +238,16 @@ void ASpaceRunnerCharacter::RestartLevel()
 
 void ASpaceRunnerCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
+	AActor* Coin = Cast<ACoin>(OtherActor);
 
+	if (Coin && Coin != nullptr)
+	{
+		Cast<ACoin>(OtherActor)->PickupCoin();
+	}
+}
+
+void ASpaceRunnerCharacter::StartGame()
+{
+	LevelManager->StartGame();
 }
 
