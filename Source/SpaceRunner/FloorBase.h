@@ -15,6 +15,12 @@ public:
 	// Sets default values for this actor's properties
 	AFloorBase();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void NavLineVisibility();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void NavLineColor();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

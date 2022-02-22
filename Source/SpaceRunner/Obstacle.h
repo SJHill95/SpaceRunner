@@ -15,9 +15,13 @@ public:
 	// Sets default values for this actor's properties
 	AObstacle();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void Dissolve();
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
 
 public:	
 	// Called every frame

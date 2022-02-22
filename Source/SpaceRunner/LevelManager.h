@@ -29,6 +29,12 @@ public:
 	UFUNCTION(BlueprintImplementableEvent)
 	void StartGame();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void PauseLevelSpeed();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void UnpauseLevelSpeed();
+
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Lanes, meta = (AllowPrivateAccess = "true"))
@@ -39,6 +45,9 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
 	float LevelSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
+	float CurrentLevelSpeed;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true"))
 	FVector OutOfBoundBoxScale;
@@ -63,6 +72,7 @@ public:
 	FORCEINLINE int32 GetNumberOfLanes() const { return NumberOfLanes; }
 	FORCEINLINE float GetLaneWidth() const { return LaneWidth; }
 	FORCEINLINE float GetLevelSpeed() const { return LevelSpeed; }
+	FORCEINLINE float GetCurrentLevelSpeed() const { return CurrentLevelSpeed; }
 	FORCEINLINE bool GetIsPlaying() const { return bIsPlaying; }
 	FORCEINLINE int32 GetScore() const { return Score; }
 

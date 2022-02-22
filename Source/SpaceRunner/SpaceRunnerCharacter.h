@@ -4,14 +4,9 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Components/TimelineComponent.h"
 #include "SpaceRunnerCharacter.generated.h"
 
-UENUM(BlueprintType)
-enum class ECharacterType : uint8
-{
-	ECT_Runner UMETA(DisplayName="Runner"),
-	ECT_Freeroam UMETA(DisplayName = "Freeroam")
-};
 
 UENUM(BlueprintType)
 enum class ECharacterState : uint8
@@ -25,7 +20,21 @@ enum class ECharacterState : uint8
 	ECS_Dead UMETA(DisplayName = "Dead")
 };
 
+USTRUCT(BlueprintType)
+struct FQuizStruct
+{
+	GENERATED_BODY();
+
+public:
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText Question;
+	UPROPERTY(EditAnywhere, BlueprintReadOnly)
+	FText Answer;
+};
+
 class UNiagaraComponent;
+class UUserWidget;
 
 UCLASS(config=Game)
 class ASpaceRunnerCharacter : public ACharacter
@@ -36,14 +45,7 @@ public:
 	ASpaceRunnerCharacter();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	ECharacterType CharacterType;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	ECharacterState CharacterState;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool bIsRunnerCharacter;
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -62,13 +64,15 @@ protected:
 	// Sets up the lanes
 	void Initialize();
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION()
 	void MoveLeft();
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	UFUNCTION()
 	void MoveRight();
 
 	// Flying functions
+	UFUNCTION(BlueprintCallable)
 	void StartFlying();
+	UFUNCTION(BlueprintCallable)
 	void StopFlying();
 
 	// Move Down and Sliding functions
@@ -76,12 +80,53 @@ protected:
 	void Slide();
 	void StopSliding();
 
+	void ESCDown();
+
+	// Move left timeline 
+	FTimeline MoveLeftTimeline;
+
+	UPROPERTY(EditAnywhere, Category = "Timeline")
+	UCurveFloat* MoveLeftFloat;
+
+	//Delegate signature for the function which will handle Finished event.
+	FOnTimelineEvent TimelineFinished;
+
+	// Pickups
+	UFUNCTION(BlueprintCallable)
+	void MagnetOn();
+
+	UFUNCTION(BlueprintCallable)
+	void MagnetOff();
+
+	UFUNCTION(BlueprintCallable)
+	void ForceFieldOn();
+
+	UFUNCTION(BlueprintCallable)
+	void ForceFieldOff();
+
 public:
+
+	UFUNCTION()
+	void SetupTimeline();
+
+	UFUNCTION()
+	void MoveLeftTimelineProgress(float Value);
+
+	UFUNCTION()
+	void TimelineFinishedFunction();
 
 	void RestartLevel();
 
 	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
+	void OnOverlapBeginMagnet(UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnOverlapBeginForceField(UPrimitiveComponent* OverlappedComp,
 		AActor* OtherActor,
 		UPrimitiveComponent* OtherComp,
 		int32 OtherBodyIndex,
@@ -97,6 +142,31 @@ public:
 	UFUNCTION()
 	void StartGame();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void FlyingTurnRotation(FRotator Rotation);
+
+	void DecreaseOxygen();
+
+	UFUNCTION(BlueprintCallable)
+	void RestoreOxygen();
+
+	UFUNCTION(BlueprintCallable)
+	void StopOxygen();
+
+	FTimerHandle DecreaseOxygenTimerHandle;
+
+	FTimerHandle RestoreOxygenTimerHandle;
+
+	FTimerHandle QuizTimerHandle;
+
+	void QuizPickup();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void CheckPlayerLane();
+
+	UFUNCTION(BlueprintCallable)
+	void CheckPlayerAnswer();
+
 private:
 	// Camera boom positioning the camera behind the character
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -109,16 +179,40 @@ private:
 	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = "Magnet", meta = (AllowPrivateAccess = "true"))
 	class USphereComponent* MagnetSphereCollision;
 
-	float zPosition;
-	FVector tempPos = FVector();
+	// Force Field variables
 
-	bool CanMove;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = "ForceField", meta = (AllowPrivateAccess = "true"))
+	class USphereComponent* ForceFieldSphereCollision;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "ForceField", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* ForceFieldFX;
+	
+	UPROPERTY(VisibleAnyWhere, BlueprintReadOnly, Category = "ForceField", meta = (AllowPrivateAccess = "true"))
+	bool bForceFieldOn;
+
+	// Movement Variables
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	bool bMoving;
+
+	bool bIsTurningLeft;
+
+	bool bIsTurningRight;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float JumpVelocity;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float GravityScale;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
 	float CharacterSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* RunningTurnLeft;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Movement, meta = (AllowPrivateAccess = "true"))
+	class UAnimMontage* RunningTurnRight;
 
 	// Flying variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Flying, meta = (AllowPrivateAccess = "true"))
@@ -131,7 +225,7 @@ private:
 	class USkeletalMeshComponent* JetpackMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Flying, meta = (AllowPrivateAccess = "true"))
-	class USoundBase* JetpackSFX;
+	class UAudioComponent* JetpackSFX;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Flying, meta = (AllowPrivateAccess = "true"))
 	float FlyingHeightZ;
@@ -142,6 +236,8 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Flying, meta = (AllowPrivateAccess = "true"))
 	bool bIsFlying;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Flying, meta = (AllowPrivateAccess = "true"))
+	FRotator FlyingTurnRotationValue;
 	// Coin variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Coins, meta = (AllowPrivateAccess = "true"))
 	int32 Coins;
@@ -162,8 +258,40 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true", MakeEditWidget = true))
 	float TargetPosition;
 
+	// Player level variables
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Level, meta = (AllowPrivateAccess = "true"))
+	int32 CurrentPlayerLevel;
+
+	/* Oxygen variables */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oxygen", meta = (AllowPrivateAccess = "true"))
+	float Oxygen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oxygen", meta = (AllowPrivateAccess = "true"))
+	float MaxOxygen;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oxygen", meta = (AllowPrivateAccess = "true"))
+	float RestoreOxygenAmount;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Oxygen", meta = (AllowPrivateAccess = "true"))
+	UNiagaraComponent* OxygenRestoreFX;
+
+	/* Quiz pickup variables */
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quiz, meta = (AllowPrivateAccess = "true"))
+	//UUserWidget* QuizWidget;
+
+	bool bQuizIsActive;
+
+	/* Reference to the level manager */
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default, meta = (AllowPrivateAccess = "true"))
 	class ALevelManager* LevelManager;
+
+	/* Reference to the coin class */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default, meta = (AllowPrivateAccess = "true"))
+	class ACoin* CoinRef;
+
+	/* Reference to the player controller */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default, meta = (AllowPrivateAccess = "true"))
+	class ARunnerPlayerController* RunnerPlayerController;
 
 public:
 	// Returns CameraBoom subobject
@@ -178,4 +306,6 @@ public:
 	FORCEINLINE void SetCoins(float CoinsAmount) { Coins = CoinsAmount; }
 	FORCEINLINE int32 GetCoinsTotal() { return CoinsTotal; }
 	FORCEINLINE void SetCoinsTotal(float CoinsAmount) { CoinsTotal = CoinsAmount; }
+
+	FORCEINLINE int32 GetCurrentPlayerLevel() { return CurrentPlayerLevel; }
 };

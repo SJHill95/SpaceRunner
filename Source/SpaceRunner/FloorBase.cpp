@@ -30,5 +30,9 @@ void AFloorBase::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	NavLineVisibility();
+
+	NavLineColor();
+
 }
 

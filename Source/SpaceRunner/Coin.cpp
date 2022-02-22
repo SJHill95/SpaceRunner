@@ -38,6 +38,12 @@ void ACoin::BeginPlay()
 	SetupTimeline();
 
 	OverlapSphere->OnComponentBeginOverlap.AddDynamic(this, &ACoin::OnOverlapBegin);
+	
+	if (SpaceRunnerCharacter->CharacterState == ECharacterState::ECS_Flying)
+	{
+		MoveCoinsUp();
+	}
+
 }
 
 // Called every frame
@@ -49,10 +55,9 @@ void ACoin::Tick(float DeltaTime)
 	MoveCoinsUpTimeline.TickTimeline(DeltaTime);
 	MoveCoinsToPlayerTimeline.TickTimeline(DeltaTime);
 
-	if (SpaceRunnerCharacter->GetIsFlying())
-	{
-		MoveCoinsUp();
-	}
+	/*
+	
+	*/
 }
 
 void ACoin::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
