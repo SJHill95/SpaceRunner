@@ -42,7 +42,9 @@ ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
 	// Oxygen
 	Oxygen(100.f),
 	MaxOxygen(100.f),
-	RestoreOxygenAmount(0.05f)
+	RestoreOxygenAmount(0.05f),
+	// Player lives
+	Lives(0)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -342,12 +344,11 @@ void ASpaceRunnerCharacter::StopFlying()
 
 void ASpaceRunnerCharacter::MoveDown()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Move down pressed"));
+	
 	if (CharacterState != ECharacterState::ECS_Flying)
 	{
 		if (!LevelManager->GetIsPlaying() || GetCharacterMovement()->IsFalling())
 		{
-			UE_LOG(LogTemp, Warning, TEXT("Add impulse?"));
 			GetCharacterMovement()->AddImpulse({ 0.f,0.f,-3000.f }, true);
 		}
 
@@ -455,14 +456,18 @@ void ASpaceRunnerCharacter::StartGame()
 
 void ASpaceRunnerCharacter::DecreaseOxygen()
 {
-	Oxygen -= 0.01f;
-
-	if (Oxygen <= 0.f)
+	if (LevelManager->GetIsPlaying())
 	{
-		CharacterState = ECharacterState::ECS_Dead;
-		LevelManager->GameOver_Implementation();
-		GetWorldTimerManager().ClearTimer(DecreaseOxygenTimerHandle);
+		Oxygen -= 0.01f;
+
+		if (Oxygen <= 0.f)
+		{
+			CharacterState = ECharacterState::ECS_Dead;
+			LevelManager->GameOver();
+			GetWorldTimerManager().ClearTimer(DecreaseOxygenTimerHandle);
+		}
 	}
+	
 }
 
 void ASpaceRunnerCharacter::RestoreOxygen()
@@ -493,33 +498,34 @@ void ASpaceRunnerCharacter::StopOxygen()
 
 void ASpaceRunnerCharacter::QuizPickup()
 {
-	/*
-	if (QuizWidget)
+	if (QuizWidgetAsset)
 	{
-		QuizWidget = CreateDefaultSubobject<UUserWidget>(TEXT("QuizWidget"));
+		QuizWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), QuizWidgetAsset);
 		QuizWidget->AddToViewport();
 		bQuizIsActive = true;
+		CheckPlayerAnswer();
 	}
-	
-	GetWorldTimerManager().SetTimer(QuizTimerHandle, this, &ASpaceRunnerCharacter::CheckPlayerLane, 0.01f, false, 3.0f);
-	*/
 }
 
-void ASpaceRunnerCharacter::CheckPlayerAnswer()
+void ASpaceRunnerCharacter::CheckPlayerAnswer_Implementation()
 {
+	/*
+	FQuizStruct Answer;
 	switch (CurrentLane)
 	{
 	case 1:
 		// Set player answer to true
+		PlayerAnswer = FText::FromString(TEXT("True"));
 		break;
 	case 2:
 		break;
 	case 3:
 		// Set player answer to false
+		PlayerAnswer = FText::FromString(TEXT("False"));
 		break;
 	}
 
-	if (true)
+	if (PlayerAnswer == Answer)
 	{
 		Coins += 100;
 		CoinsTotal += 100;
@@ -536,5 +542,6 @@ void ASpaceRunnerCharacter::CheckPlayerAnswer()
 
 	// Create HUD C++ class to access WBP Timer and call StopTimer()
 	bQuizIsActive = false;
+	*/
 }
 

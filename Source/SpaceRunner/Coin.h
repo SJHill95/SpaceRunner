@@ -17,6 +17,9 @@ class SPACERUNNER_API ACoin : public AActor
 public:	
 	// Sets default values for this actor's properties
 	ACoin();
+
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
 	
 	UFUNCTION(BlueprintCallable)
 	void MoveCoinsUp();
@@ -40,11 +43,13 @@ public:
 	UFUNCTION()
 	void CoinProgressBarFilled();
 
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Coin")
-	class UStaticMeshComponent* CoinMesh;
-
-	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Coin")
-	class USphereComponent* OverlapSphere;
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
 
 protected:
 	// Called when the game starts or when spawned
@@ -80,20 +85,18 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Sound)
 	USoundBase* PickupSound;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
-	int32 ScoreValue;
-
 public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Coin")
+	class UStaticMeshComponent* CoinMesh;
 
-	UFUNCTION()
-	void OnOverlapBegin(UPrimitiveComponent* OverlappedComp,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult);
+	UPROPERTY(VisibleAnyWhere, BlueprintReadWrite, Category = "Coin")
+	class USphereComponent* OverlapSphere;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float ScoreValue;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	float CoinsToLevel;
 
 private: 
 
@@ -102,5 +105,8 @@ private:
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default, meta = (AllowPrivateAccess = "true"))
 	class ALevelManager* LevelManager;
+
+
+public:
 
 };

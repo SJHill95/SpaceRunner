@@ -19,8 +19,18 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
-	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
-	void GameOver();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void Materialize();
+
+	UFUNCTION(BlueprintCallable)
+	void AddScore();
+
+	UFUNCTION(BlueprintCallable)
+	void StopScore();
+
+	void IncreaseLevelSpeed();
+
 
 public:
 	// Called every frame
@@ -35,6 +45,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
 	void UnpauseLevelSpeed();
 
+	UFUNCTION(BlueprintCallable)
+	void GameOver();
+
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Lanes, meta = (AllowPrivateAccess = "true"))
@@ -42,12 +55,23 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Lanes, meta = (AllowPrivateAccess = "true"))
 	float LaneWidth;
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
+	
+	/* Level speed variables */ 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = LevelSpeed, meta = (AllowPrivateAccess = "true"))
 	float LevelSpeed;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Speed, meta = (AllowPrivateAccess = "true"))
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = LevelSpeed, meta = (AllowPrivateAccess = "true"))
 	float CurrentLevelSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = LevelSpeed, meta = (AllowPrivateAccess = "true"))
+	float MaxLevelSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = LevelSpeed, meta = (AllowPrivateAccess = "true"))
+	float MinLevelSpeed;
+
+	FTimerHandle IncreaseLevelSpeedTimerHandle;
+
+	/* Out of bounds variables */
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Bounds, meta = (AllowPrivateAccess = "true"))
 	FVector OutOfBoundBoxScale;
@@ -61,11 +85,34 @@ private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
 	bool bIsPlaying;
 
+	/* Game over variables */
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> GameOverWidgetAsset;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Widget, meta = (AllowPrivateAccess = "true"))
+	UUserWidget* GameOverWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
+	bool bGameOver;
+
+	/* Score variables */
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Score, meta = (AllowPrivateAccess = "true"))
-	int32 Score;
+	float Score;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Score, meta = (AllowPrivateAccess = "true"))
+	float ScoreMultiplier;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Score, meta = (AllowPrivateAccess = "true"))
+	float Highscore;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = StartGame, meta = (AllowPrivateAccess = "true"))
 	bool bMaterializeFinished;
+
+	/* Actor References */
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default, meta = (AllowPrivateAccess = "true"))
+	class ASpaceRunnerCharacter* PlayerCharRef;
+
+	FTimerHandle AddScoreTimerHandle;
 
 public:
 

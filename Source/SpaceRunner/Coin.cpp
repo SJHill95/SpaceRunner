@@ -13,7 +13,8 @@
 ACoin::ACoin() :
 	StartLocZ(100.f),
 	EndLocZ(400.f),
-	ScoreValue(50)
+	ScoreValue(50.f),
+	CoinsToLevel(99.f)
 
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -137,7 +138,7 @@ void ACoin::PickupCoin()
 
 	MoveCoinsToPlayerTimeline.SetTimelineFinishedFunc(TimelineFinished);
 
-	if (SpaceRunnerCharacter->GetCoins() >= 99)
+	if (SpaceRunnerCharacter->GetCoins() >= CoinsToLevel)
 	{
 		CoinProgressBarFilled();
 	}
@@ -148,7 +149,7 @@ void ACoin::CoinProgressBarFilled()
 {
 	SpaceRunnerCharacter->SetCoins(0);
 	SpaceRunnerCharacter->CoinBarFilled();
-	LevelManager->SetScore(LevelManager->GetScore() + 1000);
+	//LevelManager->SetScore(LevelManager->GetScore() + 1000.f);
 }
 
 void ACoin::MoveCoinsUp()

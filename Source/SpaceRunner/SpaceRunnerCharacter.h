@@ -57,6 +57,62 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION()
+	void SetupTimeline();
+
+	UFUNCTION()
+	void MoveLeftTimelineProgress(float Value);
+
+	UFUNCTION()
+	void TimelineFinishedFunction();
+
+	void RestartLevel();
+
+	UFUNCTION()
+	void OnOverlapBeginMagnet(UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	UFUNCTION()
+	void OnOverlapBeginForceField(UPrimitiveComponent* OverlappedComp,
+		AActor* OtherActor,
+		UPrimitiveComponent* OtherComp,
+		int32 OtherBodyIndex,
+		bool bFromSweep,
+		const FHitResult& SweepResult);
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void DisplayCoinWidget();
+
+	UFUNCTION(BlueprintImplementableEvent)
+	void CoinBarFilled();
+
+	UFUNCTION()
+	void StartGame();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void FlyingTurnRotation(FRotator Rotation);
+
+	void DecreaseOxygen();
+
+	UFUNCTION(BlueprintCallable)
+	void RestoreOxygen();
+
+	UFUNCTION(BlueprintCallable)
+	void StopOxygen();
+
+	UFUNCTION(BlueprintCallable)
+	void QuizPickup();
+
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void CheckPlayerLane();
+
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable)
+	void CheckPlayerAnswer();
+
 protected:
 	void MoveRight(float value);
 
@@ -106,66 +162,14 @@ protected:
 
 public:
 
-	UFUNCTION()
-	void SetupTimeline();
-
-	UFUNCTION()
-	void MoveLeftTimelineProgress(float Value);
-
-	UFUNCTION()
-	void TimelineFinishedFunction();
-
-	void RestartLevel();
-
-	UFUNCTION()
-	void OnOverlapBeginMagnet(UPrimitiveComponent* OverlappedComp,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult);
-
-	UFUNCTION()
-	void OnOverlapBeginForceField(UPrimitiveComponent* OverlappedComp,
-		AActor* OtherActor,
-		UPrimitiveComponent* OtherComp,
-		int32 OtherBodyIndex,
-		bool bFromSweep,
-		const FHitResult& SweepResult);
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void DisplayCoinWidget();
-
-	UFUNCTION(BlueprintImplementableEvent)
-	void CoinBarFilled();
-
-	UFUNCTION()
-	void StartGame();
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void FlyingTurnRotation(FRotator Rotation);
-
-	void DecreaseOxygen();
-
-	UFUNCTION(BlueprintCallable)
-	void RestoreOxygen();
-
-	UFUNCTION(BlueprintCallable)
-	void StopOxygen();
-
 	FTimerHandle DecreaseOxygenTimerHandle;
 
 	FTimerHandle RestoreOxygenTimerHandle;
 
 	FTimerHandle QuizTimerHandle;
 
-	void QuizPickup();
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void CheckPlayerLane();
-
-	UFUNCTION(BlueprintCallable)
-	void CheckPlayerAnswer();
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default)
+	int32 Lives;
 
 private:
 	// Camera boom positioning the camera behind the character
@@ -238,6 +242,7 @@ private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Flying, meta = (AllowPrivateAccess = "true"))
 	FRotator FlyingTurnRotationValue;
+
 	// Coin variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Coins, meta = (AllowPrivateAccess = "true"))
 	int32 Coins;
@@ -276,9 +281,16 @@ private:
 	UNiagaraComponent* OxygenRestoreFX;
 
 	/* Quiz pickup variables */
-	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quiz, meta = (AllowPrivateAccess = "true"))
-	//UUserWidget* QuizWidget;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quiz, meta = (AllowPrivateAccess = "true"))
+	TSubclassOf<class UUserWidget> QuizWidgetAsset;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quiz, meta = (AllowPrivateAccess = "true"))
+	UUserWidget* QuizWidget;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Quiz, meta = (AllowPrivateAccess = "true"))
+	FText PlayerAnswer;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = Quiz, meta = (AllowPrivateAccess = "true"))
 	bool bQuizIsActive;
 
 	/* Reference to the level manager */
@@ -308,4 +320,6 @@ public:
 	FORCEINLINE void SetCoinsTotal(float CoinsAmount) { CoinsTotal = CoinsAmount; }
 
 	FORCEINLINE int32 GetCurrentPlayerLevel() { return CurrentPlayerLevel; }
+
+	FORCEINLINE UNiagaraComponent* GetSpeedLines() { return SpeedLines; }
 };
