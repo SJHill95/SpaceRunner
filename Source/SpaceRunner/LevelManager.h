@@ -31,22 +31,26 @@ protected:
 
 	void IncreaseLevelSpeed();
 
+	void StopFloorMovement();
+	void StartFloorMovement();
 
 public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION(BlueprintImplementableEvent)
 	void StartGame();
 
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void PauseLevelSpeed();
-
-	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
-	void UnpauseLevelSpeed();
+	UFUNCTION(BlueprintImplementableEvent)
+	void SetupGame();
 
 	UFUNCTION(BlueprintCallable)
 	void GameOver();
+
+	void MeteorShower();
+
+	void StopMeteorShower();
+
+	void CountdownToMeteorShower();
 
 private:
 
@@ -113,7 +117,26 @@ private:
 	class ASpaceRunnerCharacter* PlayerCharRef;
 
 	FTimerHandle AddScoreTimerHandle;
+	FTimerHandle LevelSpeedTimerHandle;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MeteorShower, meta = (AllowPrivateAccess = "true"))
+	bool bMeteorShower;
+
+	FTimerHandle MSTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MeteorShower, meta = (AllowPrivateAccess = "true"))
+	float MSDurationMin;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MeteorShower, meta = (AllowPrivateAccess = "true"))
+	float MSDurationMax;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = MeteorShower, meta = (AllowPrivateAccess = "true"))
+	float MSCountdown;
+
+	float MSCountdownCurrent;
+
+	FTimerHandle MSCountdownTimerHandle;
+			
 public:
 
 	FORCEINLINE int32 GetNumberOfLanes() const { return NumberOfLanes; }

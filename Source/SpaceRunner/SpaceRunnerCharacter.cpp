@@ -44,7 +44,9 @@ ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
 	MaxOxygen(100.f),
 	RestoreOxygenAmount(0.05f),
 	// Player lives
-	Lives(0)
+	Lives(0),
+	// Player Input
+	bAllowPlayerInput(false)
 {
 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
@@ -145,7 +147,7 @@ void ASpaceRunnerCharacter::Initialize()
 
 void ASpaceRunnerCharacter::MoveLeft()
 {
-	if (LevelManager->GetIsPlaying())
+	if (LevelManager->GetIsPlaying() && bAllowPlayerInput)
 	{
 		if (CharacterState == ECharacterState::ECS_Flying || CharacterState == ECharacterState::ECS_Running)
 		{
@@ -177,7 +179,7 @@ void ASpaceRunnerCharacter::MoveLeft()
 
 void ASpaceRunnerCharacter::MoveRight()
 {
-	if (LevelManager->GetIsPlaying())
+	if (LevelManager->GetIsPlaying() && bAllowPlayerInput)
 	{
 		if (CharacterState == ECharacterState::ECS_Flying || CharacterState == ECharacterState::ECS_Running)
 		{
@@ -278,7 +280,7 @@ void ASpaceRunnerCharacter::TimelineFinishedFunction()
 
 void ASpaceRunnerCharacter::Jump()
 {
-	if (CharacterState == ECharacterState::ECS_Running && LevelManager->GetIsPlaying())
+	if (CharacterState == ECharacterState::ECS_Running && LevelManager->GetIsPlaying() && bAllowPlayerInput)
 	{
 		ACharacter::Jump();
 		CharacterState = ECharacterState::ECS_Jumping;
@@ -361,8 +363,11 @@ void ASpaceRunnerCharacter::MoveDown()
 
 void ASpaceRunnerCharacter::Slide()
 {
-	CharacterState = ECharacterState::ECS_Sliding;
-	Crouch();
+	if (bAllowPlayerInput)
+	{
+		CharacterState = ECharacterState::ECS_Sliding;
+		Crouch();
+	}	
 }
 
 void ASpaceRunnerCharacter::StopSliding()

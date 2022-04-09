@@ -7,6 +7,7 @@
 #include "Kismet/GameplayStatics.h"
 #include "SpaceRunnerCharacter.h"
 #include "NiagaraComponent.h"
+#include "Math/UnrealMathUtility.h"
 
 
 // Sets default values
@@ -19,7 +20,12 @@ ALevelManager::ALevelManager() :
 	bIsPlaying(false),
 	bGameOver(false),
 	Score(0.f),
-	ScoreMultiplier(1.f)
+	ScoreMultiplier(1.f),
+	bMeteorShower(false),
+	MSDurationMin(15.f),
+	MSDurationMax(30.f),
+	MSCountdown(60.f),
+	MSCountdownCurrent(0.f)
 
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -40,6 +46,7 @@ void ALevelManager::BeginPlay()
 
 	bIsPlaying = false;
 	bGameOver = false;
+	bMeteorShower = false;
 	Materialize();
 
 	PlayerCharRef = Cast<ASpaceRunnerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));	
@@ -49,6 +56,8 @@ void ALevelManager::BeginPlay()
 
 	/* Set up increase level speed timer handle*/
 	GetWorldTimerManager().SetTimer(IncreaseLevelSpeedTimerHandle, this, &ALevelManager::IncreaseLevelSpeed, 1.f, true, 1.f);
+
+	MSCountdownCurrent = MSCountdown;
 }
 
 void ALevelManager::AddScore()
@@ -56,7 +65,6 @@ void ALevelManager::AddScore()
 	float BaseScore{ 10.f };
 
 	Score += BaseScore * ScoreMultiplier;
-
 }
 
 void ALevelManager::StopScore()
@@ -66,28 +74,42 @@ void ALevelManager::StopScore()
 
 void ALevelManager::IncreaseLevelSpeed()
 {
-	switch (PlayerCharRef->CharacterState)
+	if (bIsPlaying)
 	{
-		case ECharacterState::ECS_Running:
-		break;
-		case ECharacterState::ECS_Jumping:
-		break;
-		case ECharacterState::ECS_Sliding:
-		break;
-		case ECharacterState::ECS_Falling:
-		break;
-	}
+		if (PlayerCharRef->CharacterState == ECharacterState::ECS_Running ||
+			PlayerCharRef->CharacterState == ECharacterState::ECS_Jumping ||
+			PlayerCharRef->CharacterState == ECharacterState::ECS_Sliding ||
+			PlayerCharRef->CharacterState == ECharacterState::ECS_Falling)
+		{
+			LevelSpeed, CurrentLevelSpeed = FMath::Clamp(LevelSpeed * 1.01f, MaxLevelSpeed, MinLevelSpeed);
 
-	LevelSpeed, CurrentLevelSpeed = FMath::Clamp(LevelSpeed * 1.01f, MaxLevelSpeed, MinLevelSpeed);
+			if (CurrentLevelSpeed == MaxLevelSpeed)
+			{
+				PlayerCharRef->GetSpeedLines()->SetVisibility(true);
+			}
+			else
+			{
+				PlayerCharRef->GetSpeedLines()->SetVisibility(false);
+			}
+		}
+	}
+	
+}
 
-	if (CurrentLevelSpeed == MaxLevelSpeed)
-	{
-		PlayerCharRef->GetSpeedLines()->SetVisibility(true);
-	}
-	else
-	{
-		PlayerCharRef->GetSpeedLines()->SetVisibility(false);
-	}
+void ALevelManager::StopFloorMovement()
+{
+	LevelSpeed = 0;
+	bIsPlaying = false;
+	StopScore();
+	GetWorldTimerManager().PauseTimer(LevelSpeedTimerHandle);
+}
+
+void ALevelManager::StartFloorMovement()
+{
+	LevelSpeed = CurrentLevelSpeed;
+	bIsPlaying = true;
+	AddScore();
+	GetWorldTimerManager().UnPauseTimer(LevelSpeedTimerHandle);
 }
 
 // Called every frame
@@ -96,16 +118,19 @@ void ALevelManager::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 }
-/*
+
 void ALevelManager::StartGame()
 {
 	if (bMaterializeFinished)
 	{
 		bIsPlaying = true;
+		GetWorldTimerManager().SetTimer(LevelSpeedTimerHandle, this, &ALevelManager::IncreaseLevelSpeed, 1.f, true, 0.f);
+		GetWorldTimerManager().SetTimer(MSCountdownTimerHandle, this, &ALevelManager::CountdownToMeteorShower, 1.f, true, 0.f);
+		SetupGame();
 	}
 
 }
-*/
+
 void ALevelManager::GameOver()
 {
 	bGameOver = true;
@@ -123,6 +148,48 @@ void ALevelManager::GameOver()
 			GameOverWidget->AddToViewport();
 		}
 	}	
+}
+
+void ALevelManager::MeteorShower()
+{
+	float MSDuration = FMath::RandRange(MSDurationMin, MSDurationMax);
+
+	if (!bMeteorShower)
+	{
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Meteor Shower Started!"));
+
+		bMeteorShower = true;
+		GetWorldTimerManager().SetTimer(MSTimerHandle, this, &ALevelManager::StopMeteorShower, 1.f, false, MSDuration);
+		MSCountdownCurrent = MSCountdown;
+		
+	}
+}
+
+void ALevelManager::StopMeteorShower()
+{
+	if (bMeteorShower)
+	{
+		if (GEngine)
+			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Meteor Shower Stopped!"));
+
+		bMeteorShower = false;
+		GetWorldTimerManager().SetTimer(MSCountdownTimerHandle, this, &ALevelManager::CountdownToMeteorShower, 1.f, true, 0.f);
+	}
+}
+
+void ALevelManager::CountdownToMeteorShower()
+{
+	if (!bMeteorShower)
+	{
+		MSCountdownCurrent--;
+
+		if (MSCountdownCurrent <= 0)
+		{
+			GetWorldTimerManager().ClearTimer(MSCountdownTimerHandle);
+			MeteorShower();
+		}
+	}
 }
 
 
