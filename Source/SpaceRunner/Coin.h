@@ -106,6 +106,8 @@ private:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Default, meta = (AllowPrivateAccess = "true"))
 	class ALevelManager* LevelManager;
 
+	bool bCoinPickedUp;
+
 
 public:
 

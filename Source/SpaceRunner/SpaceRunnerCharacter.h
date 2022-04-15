@@ -160,6 +160,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void ForceFieldOff();
 
+	UFUNCTION(BlueprintImplementableEvent, BlueprintCallable)
+	void JetpackOn();
+
 public:
 
 	FTimerHandle DecreaseOxygenTimerHandle;

@@ -52,6 +52,9 @@ public:
 
 	void CountdownToMeteorShower();
 
+	UFUNCTION(BlueprintImplementableEvent)
+	void HideHUD();
+
 private:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Lanes, meta = (AllowPrivateAccess = "true"))
@@ -136,6 +139,9 @@ private:
 	float MSCountdownCurrent;
 
 	FTimerHandle MSCountdownTimerHandle;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = Default, meta = (AllowPrivateAccess = "true"))
+	bool bShowHUD;
 			
 public:
 

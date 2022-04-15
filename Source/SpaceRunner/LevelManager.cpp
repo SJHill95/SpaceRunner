@@ -25,7 +25,8 @@ ALevelManager::ALevelManager() :
 	MSDurationMin(15.f),
 	MSDurationMax(30.f),
 	MSCountdown(60.f),
-	MSCountdownCurrent(0.f)
+	MSCountdownCurrent(0.f),
+	bShowHUD(false)
 
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -127,6 +128,7 @@ void ALevelManager::StartGame()
 		GetWorldTimerManager().SetTimer(LevelSpeedTimerHandle, this, &ALevelManager::IncreaseLevelSpeed, 1.f, true, 0.f);
 		GetWorldTimerManager().SetTimer(MSCountdownTimerHandle, this, &ALevelManager::CountdownToMeteorShower, 1.f, true, 0.f);
 		SetupGame();
+		bShowHUD = true;
 	}
 
 }
@@ -141,7 +143,8 @@ void ALevelManager::GameOver()
 		bIsPlaying = false;
 		PlayerCharRef->StopOxygen();
 		StopScore();
-
+		bShowHUD = false;
+		HideHUD();
 		if (GameOverWidgetAsset)
 		{
 			GameOverWidget = CreateWidget<UUserWidget>(UGameplayStatics::GetPlayerController(GetWorld(), 0), GameOverWidgetAsset);

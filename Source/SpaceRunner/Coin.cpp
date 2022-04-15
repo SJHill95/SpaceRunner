@@ -14,7 +14,8 @@ ACoin::ACoin() :
 	StartLocZ(100.f),
 	EndLocZ(400.f),
 	ScoreValue(50.f),
-	CoinsToLevel(99.f)
+	CoinsToLevel(99.f), 
+	bCoinPickedUp(false)
 
 {
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
@@ -72,7 +73,6 @@ void ACoin::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherAct
 		{
 			PickupCoin();
 		}
-		//Cast<ASpaceRunnerCharacter>(OtherActor)->DisplayCoinWidget();
 
 		if (Obstacle)
 		{
@@ -120,18 +120,25 @@ void ACoin::MoveCoinsToPlayerTimelineProgress(float Value)
 
 void ACoin::TimelineFinishedFunction()
 {
-	UE_LOG(LogTemp, Warning, TEXT("Finished Event Called."));
-	SpaceRunnerCharacter->SetCoins(SpaceRunnerCharacter->GetCoins() + 1);
-	SpaceRunnerCharacter->SetCoinsTotal(SpaceRunnerCharacter->GetCoinsTotal() + 1);
-	UGameplayStatics::PlaySound2D(this, PickupSound);
-	LevelManager->SetScore(LevelManager->GetScore() + ScoreValue);
-	SpaceRunnerCharacter->DisplayCoinWidget();
+	if (bCoinPickedUp)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Finished Event Called."));
+		SpaceRunnerCharacter->SetCoins(SpaceRunnerCharacter->GetCoins() + 1);
+		SpaceRunnerCharacter->SetCoinsTotal(SpaceRunnerCharacter->GetCoinsTotal() + 1);
+		UGameplayStatics::PlaySound2D(this, PickupSound);
+		LevelManager->SetScore(LevelManager->GetScore() + ScoreValue);
+		SpaceRunnerCharacter->DisplayCoinWidget();
 
-	CoinMesh->SetVisibility(false);
+		CoinMesh->SetVisibility(false);
+	}
+
+	bCoinPickedUp = false;
 }
 
 void ACoin::PickupCoin()
 {
+	bCoinPickedUp = true;
+
 	MoveCoinsToPlayerTimeline.Play();
 
 	SetActorScale3D({ 0.5f, 0.5f, 0.5f });

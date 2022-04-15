@@ -21,6 +21,7 @@
 #include "Animation/AnimMontage.h"
 #include "Components/TimelineComponent.h"
 #include "Blueprint/UserWidget.h"
+#include "Components/AudioComponent.h"
 
 // Sets default values
 ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
@@ -102,6 +103,9 @@ ASpaceRunnerCharacter::ASpaceRunnerCharacter() :
 
 	SpeedLines = CreateDefaultSubobject<UNiagaraComponent>(TEXT("SpeedLines"));
 	SpeedLines->SetupAttachment(RootComponent);
+
+	JetpackSFX = CreateDefaultSubobject<UAudioComponent>(TEXT("JetpackSFX"));
+
 
 	// Oxygen FX
 	OxygenRestoreFX = CreateDefaultSubobject<UNiagaraComponent>(TEXT("OxygenRestoreFX"));
@@ -299,8 +303,12 @@ void ASpaceRunnerCharacter::StartFlying()
 		JetpackParticles->SetVisibility(true);
 		JetpackMesh->SetVisibility(true);
 		SpeedLines->SetVisibility(true);
-		//JetpackSFX->Play();
+		JetpackOn();
 
+		if (JetpackSFX) 
+		{ 
+			JetpackSFX->Play(); 
+		}	
 		TArray<AActor*> AllCoins;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACoin::StaticClass(), AllCoins);
 
@@ -327,8 +335,11 @@ void ASpaceRunnerCharacter::StopFlying()
 		JetpackParticles->SetVisibility(false);
 		JetpackMesh->SetVisibility(false);
 		SpeedLines->SetVisibility(false);
-		//JetpackSFX->Stop();
-
+		if (JetpackSFX) 
+		{ 
+			JetpackSFX->Stop(); 
+		}
+	
 		TArray<AActor*> AllCoins;
 		UGameplayStatics::GetAllActorsOfClass(GetWorld(), ACoin::StaticClass(), AllCoins);
 
