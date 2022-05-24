@@ -159,13 +159,9 @@ void ALevelManager::MeteorShower()
 
 	if (!bMeteorShower)
 	{
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Red, TEXT("Meteor Shower Started!"));
-
 		bMeteorShower = true;
 		GetWorldTimerManager().SetTimer(MSTimerHandle, this, &ALevelManager::StopMeteorShower, 1.f, false, MSDuration);
 		MSCountdownCurrent = MSCountdown;
-		
 	}
 }
 
@@ -173,9 +169,6 @@ void ALevelManager::StopMeteorShower()
 {
 	if (bMeteorShower)
 	{
-		if (GEngine)
-			GEngine->AddOnScreenDebugMessage(-1, 15.0f, FColor::Blue, TEXT("Meteor Shower Stopped!"));
-
 		bMeteorShower = false;
 		GetWorldTimerManager().SetTimer(MSCountdownTimerHandle, this, &ALevelManager::CountdownToMeteorShower, 1.f, true, 0.f);
 	}
